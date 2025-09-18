@@ -1,0 +1,18 @@
+.navigation {
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+
+  padding: 12px 0;
+
+  overflow: hidden;
+  background: linear-gradient(to left, #6fe664, #52cbe9);
+  border-radius: 12px;
+}
+
+.toolbar {
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
