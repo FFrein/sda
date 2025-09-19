@@ -5,6 +5,11 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
+    resolve: {
+      alias: {
+        '@main': resolve('src/main/')
+      }
+    },
     plugins: [externalizeDepsPlugin()]
   },
   preload: {
@@ -21,10 +26,10 @@ export default defineConfig({
         target: 'react',
         autoCodeSplitting: true,
         // Указываем, где искать файлы маршрутов и куда класть сгенерённое дерево
-        routeTreeFilepath: 'src/renderer/src/routes',
-        routesDirectory: 'src/renderer/src/routes',
+        routeTreeFilepath: 'src/renderer/src/app/constants/routes',
+        routesDirectory: 'src/renderer/src/app/constants/routes'
       }),
       react()
-    ],
+    ]
   }
 })

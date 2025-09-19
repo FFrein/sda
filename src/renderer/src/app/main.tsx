@@ -1,10 +1,10 @@
-import './assets/main.css'
+import './styles/main.css'
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 // Import the generated route tree
-import { routeTree } from '../../routeTree.gen.ts'
+import { routeTree } from '../../../routeTree.gen'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 
 // Create a new router instance
@@ -22,5 +22,3 @@ createRoot(document.getElementById('root')!).render(
     <RouterProvider router={router} />
   </StrictMode>
 )
-
-//https://tanstack.com/router/latest/docs/framework/react/quick-start
