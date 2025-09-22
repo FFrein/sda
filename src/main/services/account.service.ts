@@ -1,14 +1,26 @@
-import { IAccount } from '../models/api'
+import { readFileListInDir, readMaFile } from '@main/utils/file.util'
+import { IGuard, IAccount } from '../models/api'
+import { IMaFile } from '@main/models/server'
+import { getLoginCode } from '@main/utils/steam.util'
 
-let accounts: IAccount[] = [{ name: 'Account 1', id: '123123' }]
+const maFiles: IMaFile[] = []
 
-export const getAccount = (): IAccount[] => {
-  return accounts
+export const getAccount = async (): Promise<IAccount[]> => {
+  const data2 = readFileListInDir('/home/a485/Документы/sda', ['.maFile'])
+  const result: IAccount[] = []
+
+  data2.forEach(async (e) => {
+    const elem = await readMaFile(e, '/home/a485/Документы/sda')
+    maFiles.push(elem)
+    result.push({ name: elem.account_name, id: elem.Session.SteamID })
+  })
+
+  return result
 }
 
 export const createAccount = (data: IAccount): string => {
   try {
-    accounts.push(data)
+    //accounts.push(data)
     return 'ok'
   } catch (e: unknown) {
     if (e instanceof Error) {
@@ -20,6 +32,15 @@ export const createAccount = (data: IAccount): string => {
 }
 
 export const deleteAccount = (id: string): string => {
-  accounts = accounts.filter((e: IAccount) => e != id)
+  //accounts = accounts.filter((e: IAccount) => e != id)
   return 'ok'
+}
+
+export const getGuardCode = async (id: string): Promise<string | IGuard> => {
+  const elem = maFiles.find((e) => e.Session.SteamID.toString() == id)
+  if (elem) {
+    return await getLoginCode(elem?.shared_secret)
+  } else {
+    return 'Аккаунт не найден'
+  }
 }

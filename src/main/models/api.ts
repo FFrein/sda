@@ -1,5 +1,10 @@
 export interface IAccount {
-  id: string
+  id: number
   name: string
   img?: File
+}
+
+export interface IGuardCode {
+  code: string
+  ttl: number
 }

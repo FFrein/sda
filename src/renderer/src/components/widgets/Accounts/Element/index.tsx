@@ -1,4 +1,4 @@
-import { IconButton, ListItem, ListItemAvatar, ListItemButton, ListItemText } from '@mui/material'
+import { IconButton, ListItem, ListItemAvatar, ListItemText } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import styles from './styles.module.scss'
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
@@ -23,9 +23,6 @@ const Account: React.FC<IAccount> = ({ name, id }: IAccount) => {
         </ListItemAvatar>
         <ListItemText primary={name} />
       </Link>
-      <ListItemButton className={styles.code} divider>
-        F2F438
-      </ListItemButton>
     </ListItem>
   )
 }

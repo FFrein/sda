@@ -1,10 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-
-const RouteComponent: React.FC = () => {
-  const { id } = Route.useParams()
-  return <div>{id} Hello "/confirmations"!</div>
-}
+import Confirmations from '@renderer/components/pages/Confirmations/index'
 
 export const Route = createFileRoute('/confirmations/$id')({
-  component: RouteComponent
+  component: Confirmations
 })

@@ -9,3 +9,9 @@ An Electron application with React and TypeScript
 ## Architecture
 
 [Architecture](https://habr.com/ru/companies/doubletapp/articles/870236/)
+
+# TODO
+
+- сделать вывод списка с пагинацией универсальным компонентом
+- универсальный обработчик на загрузку данных
+- тостер с ошибками (toastyfy)
