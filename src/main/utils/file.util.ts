@@ -1,12 +1,47 @@
-import { IMaFile } from '@main/models/server'
 import fs from 'fs'
 import path from 'path'
 
-export const readMaFile = async (fileName: string, dir: string): Promise<IMaFile> => {
-  const maFilePath = path.join(dir, fileName)
-  const maFile = JSON.parse(fs.readFileSync(maFilePath, 'utf8')) as IMaFile
+export const readJsonFile = async <T>(fileName: string, dir: string): Promise<T> => {
+  const filePath = path.join(dir, fileName)
+  const fileContent = fs.readFileSync(filePath, 'utf8')
+  const data = JSON.parse(fileContent) as T
+  return data
+}
 
-  return maFile
+export const ensureFileExists = async (
+  fileName: string,
+  dir: string,
+  defaultContent: string = '{}'
+): Promise<string> => {
+  const filePath = path.join(dir, fileName)
+
+  try {
+    await fs.promises.access(filePath, fs.constants.F_OK)
+    return filePath
+  } catch {
+    await fs.promises.mkdir(dir, { recursive: true })
+    await fs.promises.writeFile(filePath, defaultContent, 'utf8')
+    return filePath
+  }
+}
+
+export const saveFileAsJson = async (
+  fileName: string,
+  dir: string,
+  data: unknown
+): Promise<void> => {
+  const filePath = path.join(dir, fileName)
+
+  try {
+    await fs.promises.mkdir(dir, { recursive: true })
+
+    const jsonString = typeof data === 'string' ? data : JSON.stringify(data, null, 2)
+
+    await fs.promises.writeFile(filePath, jsonString, 'utf8')
+  } catch (error) {
+    console.error(`Ошибка при сохранении JSON в ${fileName}:`, error)
+    //throw error
+  }
 }
 
 export const readFileListInDir = (directoryPath: string, ext?: Array<string>): Array<string> => {

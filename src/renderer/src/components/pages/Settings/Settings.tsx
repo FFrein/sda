@@ -1,5 +1,5 @@
 const Settings: React.FC = () => {
-  return <div>About</div>
+  return <div>Settings</div>
 }
 
 export default Settings

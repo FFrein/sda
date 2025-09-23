@@ -20,3 +20,10 @@ export interface IMaFile {
     SteamID: number
   }
 }
+
+export interface ISteamAuthData {
+  sessionID: string
+  cookies: string[]
+}
+
+export type IMaFileRecord = Record<string, IMaFile>

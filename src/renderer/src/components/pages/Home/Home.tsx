@@ -1,10 +1,11 @@
-import { AccountsList } from '@renderer/components/widgets/Accounts/List/index'
+import { Box } from '@mui/material'
+import { AccountsList } from '@renderer/components/widgets/accounts/List/index'
 
 const Home: React.FC = () => {
   return (
-    <div>
+    <Box width={'100vw'} height={'100vh'} padding={'100px 50px'}>
       <AccountsList />
-    </div>
+    </Box>
   )
 }
 

@@ -1,10 +1,8 @@
 import { Button } from '@mui/material'
 import { AccountApi } from '@renderer/api/api'
-import { Route } from '@renderer/app/constants/routes/confirmations.$id'
 import { useState, useEffect } from 'react'
 
 const Confirmations: React.FC = () => {
-  const { id } = Route.useParams()
   const [code, setCode] = useState('')
   const [ttl, setTtl] = useState(30)
 
@@ -30,7 +28,6 @@ const Confirmations: React.FC = () => {
     return () => clearInterval(interval)
   }, [])
 
-  // процент для градиента
   const progress = (ttl / 30) * 100
 
   return (

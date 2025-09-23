@@ -1,6 +1,9 @@
 .item {
   background: linear-gradient(to left, #6fe664, #52cbe9);
-  margin: 12px 0;
+  margin: 16px 0;
+  border-radius: 8px;
+  height: 60px;
+  gap: 16px;
 }
 .code {
   max-width: 80px;

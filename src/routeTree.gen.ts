@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './renderer/src/app/constants/routes/__root'
 import { Route as SettingsRouteImport } from './renderer/src/app/constants/routes/settings'
 import { Route as IndexRouteImport } from './renderer/src/app/constants/routes/index'
-import { Route as ConfirmationsIdRouteImport } from './renderer/src/app/constants/routes/confirmations.$id'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -23,40 +22,31 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ConfirmationsIdRoute = ConfirmationsIdRouteImport.update({
-  id: '/confirmations/$id',
-  path: '/confirmations/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRoute
-  '/confirmations/$id': typeof ConfirmationsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRoute
-  '/confirmations/$id': typeof ConfirmationsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/settings': typeof SettingsRoute
-  '/confirmations/$id': typeof ConfirmationsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/settings' | '/confirmations/$id'
+  fullPaths: '/' | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/settings' | '/confirmations/$id'
-  id: '__root__' | '/' | '/settings' | '/confirmations/$id'
+  to: '/' | '/settings'
+  id: '__root__' | '/' | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SettingsRoute: typeof SettingsRoute
-  ConfirmationsIdRoute: typeof ConfirmationsIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,20 +65,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/confirmations/$id': {
-      id: '/confirmations/$id'
-      path: '/confirmations/$id'
-      fullPath: '/confirmations/$id'
-      preLoaderRoute: typeof ConfirmationsIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SettingsRoute: SettingsRoute,
-  ConfirmationsIdRoute: ConfirmationsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

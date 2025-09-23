@@ -1,24 +1,33 @@
-import { readFileListInDir, readMaFile } from '@main/utils/file.util'
-import { IGuard, IAccount } from '../models/api'
-import { IMaFile } from '@main/models/server'
-import { getLoginCode } from '@main/utils/steam.util'
+import { IGuard, IAccountOptions } from '../models/api'
+import {
+  getAccountsOptions,
+  getGuardCode,
+  getMaFiles,
+  loadMaFiles,
+  steamAuth,
+  updateAccountsOptions
+} from '@main/utils/steam.util'
+import { BrowserWindow } from 'electron'
+import { setCookiesToWindow } from '@main/utils/window.util'
 
-const maFiles: IMaFile[] = []
+export const getAccount = async (): Promise<IAccountOptions[]> => {
+  const maFiles = await loadMaFiles()
+  const accountsOptions = await getAccountsOptions()
 
-export const getAccount = async (): Promise<IAccount[]> => {
-  const data2 = readFileListInDir('/home/a485/Документы/sda', ['.maFile'])
-  const result: IAccount[] = []
+  const result = [] as IAccountOptions[]
 
-  data2.forEach(async (e) => {
-    const elem = await readMaFile(e, '/home/a485/Документы/sda')
-    maFiles.push(elem)
-    result.push({ name: elem.account_name, id: elem.Session.SteamID })
-  })
+  for (const acc in maFiles) {
+    result.push({
+      ...accountsOptions[maFiles[acc].account_name],
+      login: maFiles[acc].account_name,
+      password: undefined
+    })
+  }
 
   return result
 }
 
-export const createAccount = (data: IAccount): string => {
+export const createAccount = (data: IAccountOptions): string => {
   try {
     //accounts.push(data)
     return 'ok'
@@ -31,16 +40,40 @@ export const createAccount = (data: IAccount): string => {
   }
 }
 
-export const deleteAccount = (id: string): string => {
-  //accounts = accounts.filter((e: IAccount) => e != id)
+export const updateAccount = (data: IAccountOptions): Promise<IAccountOptions> => {
+  return updateAccountsOptions(data)
+}
+
+export const deleteAccount = (login: string): string => {
   return 'ok'
 }
 
-export const getGuardCode = async (id: string): Promise<string | IGuard> => {
-  const elem = maFiles.find((e) => e.Session.SteamID.toString() == id)
+export const getGuard = async (login: string): Promise<string | IGuard> => {
+  const maFiles = await getMaFiles()
+  const elem = maFiles[login]
+
   if (elem) {
-    return await getLoginCode(elem?.shared_secret)
+    return await getGuardCode(elem?.shared_secret)
   } else {
     return 'Аккаунт не найден'
+  }
+}
+
+export const openInBrowser = async (login: string): Promise<string> => {
+  try {
+    const auth = await steamAuth(login)
+    const url = 'https://steamcommunity.com/'
+    const win = new BrowserWindow({
+      width: 800,
+      height: 600
+    })
+
+    await setCookiesToWindow(win, auth.cookies)
+
+    win.loadURL(url)
+
+    return 'ok'
+  } catch {
+    return 'no ok'
   }
 }

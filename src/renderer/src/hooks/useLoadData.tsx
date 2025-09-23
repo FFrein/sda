@@ -7,12 +7,12 @@ interface IDataLoaderResult<TResponse, TParams> {
 }
 
 const useDataLoader = <TResponse, TParams = unknown>(
-  request: (options?: TParams) => Promise<TResponse>
+  request: (options: TParams) => Promise<TResponse>
 ): IDataLoaderResult<TResponse, TParams> => {
   const [res, setRes] = useState<TResponse>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const loadData = async (options?: TParams): Promise<void> => {
+  const loadData = async (options: TParams): Promise<void> => {
     try {
       setIsLoading(true)
       const data = await request(options)

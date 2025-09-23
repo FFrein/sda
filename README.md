@@ -5,6 +5,10 @@ An Electron application with React and TypeScript
 ## Libraries
 
 [tanstack router](https://tanstack.com/router/latest/docs/framework/react/quick-start)
+[steam-user]()
+[steam-totp]()
+[steamcommunity]()
+[steam-tradeoffer-manager]()
 
 ## Architecture
 
@@ -13,5 +17,4 @@ An Electron application with React and TypeScript
 # TODO
 
 - сделать вывод списка с пагинацией универсальным компонентом
-- универсальный обработчик на загрузку данных
 - тостер с ошибками (toastyfy)

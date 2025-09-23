@@ -1,5 +1,5 @@
-export interface IAccount {
-  id: string
-  name: string
+export interface IAccountOptions {
+  login: string
+  password?: string
   img?: File
 }
