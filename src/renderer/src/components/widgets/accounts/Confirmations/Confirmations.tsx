@@ -1,13 +1,18 @@
 import { Button } from '@mui/material'
 import { AccountApi } from '@renderer/api/api'
+import { IAccountOptions } from '@renderer/models/common/api'
 import { useState, useEffect } from 'react'
 
-const Confirmations: React.FC = () => {
+export interface ConfirmationsProps {
+  account: IAccountOptions
+}
+
+const Confirmations: React.FC<ConfirmationsProps> = ({ account }: ConfirmationsProps) => {
   const [code, setCode] = useState('')
   const [ttl, setTtl] = useState(30)
 
   const fetchCode = async (): Promise<void> => {
-    const data = await AccountApi.getGuard(id)
+    const data = await AccountApi.getGuard(account.login)
     setCode(data.code)
     setTtl(data.ttl)
   }

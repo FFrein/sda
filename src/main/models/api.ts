@@ -4,17 +4,13 @@ export interface IAccountOptions {
   img?: File
 }
 
-export interface IUser {
-  client: object
-  community: object
-  manager: object
-}
-
 export interface IGuardCode {
   code: string
   ttl: number
 }
 
-export type AccountOptionRecords = Record<string, IAccountOptions>
+export interface ITradeOffer {
+  tradeofferid: string
+}
 
-export type UserRecords = Record<string, IUser>
+export type AccountOptionRecords = Record<string, IAccountOptions>

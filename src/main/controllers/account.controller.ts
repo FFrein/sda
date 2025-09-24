@@ -1,4 +1,4 @@
-import { IAccountOptions, IGuardCode } from '@main/models/api'
+import { IAccountOptions, IGuardCode, ITradeOffer } from '@main/models/api'
 import * as AccountService from '@main/services/account.service'
 
 //TODO порнуха
@@ -20,4 +20,18 @@ export function openInBrowser(_, login: string): Promise<string> {
 
 export function updateAccountOptions(_, data: IAccountOptions): Promise<IAccountOptions> {
   return AccountService.updateAccount(data)
+}
+
+export function createClient(_, login: string): Promise<string> {
+  return AccountService.createClient(login)
+}
+
+export function getTradeOffers(_, login: string): Promise<ITradeOffer[]> {
+  return AccountService.getTradeOffers(login)
+}
+export function acceptTradeOffer(
+  _,
+  data: { login: string; tradeOfferId: string }
+): Promise<unknown> {
+  return AccountService.acceptTradeOffer(data.login, data.tradeOfferId)
 }

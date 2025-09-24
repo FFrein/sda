@@ -61,7 +61,7 @@ const Account: React.FC<AccountProps> = ({ account, openDialog }: AccountProps) 
           variant="outlined"
           color="info"
           onClick={() => {
-            openDialog('info', account)
+            openDialog('Offers', account)
           }}
         >
           <ArticleIcon />

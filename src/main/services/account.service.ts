@@ -1,18 +1,11 @@
-import { IGuard, IAccountOptions } from '../models/api'
-import {
-  getAccountsOptions,
-  getGuardCode,
-  getMaFiles,
-  loadMaFiles,
-  steamAuth,
-  updateAccountsOptions
-} from '@main/utils/steam.util'
+import { IGuardCode, IAccountOptions, ITradeOffer } from '../models/api'
+import * as SteamUtils from '@main/utils/steam.util'
 import { BrowserWindow } from 'electron'
 import { setCookiesToWindow } from '@main/utils/window.util'
 
 export const getAccount = async (): Promise<IAccountOptions[]> => {
-  const maFiles = await loadMaFiles()
-  const accountsOptions = await getAccountsOptions()
+  const maFiles = await SteamUtils.loadMaFiles()
+  const accountsOptions = await SteamUtils.getAccountsOptions()
 
   const result = [] as IAccountOptions[]
 
@@ -29,7 +22,7 @@ export const getAccount = async (): Promise<IAccountOptions[]> => {
 
 export const createAccount = (data: IAccountOptions): string => {
   try {
-    //accounts.push(data)
+    console.log(data)
     return 'ok'
   } catch (e: unknown) {
     if (e instanceof Error) {
@@ -41,19 +34,19 @@ export const createAccount = (data: IAccountOptions): string => {
 }
 
 export const updateAccount = (data: IAccountOptions): Promise<IAccountOptions> => {
-  return updateAccountsOptions(data)
+  return SteamUtils.updateAccountsOptions(data)
 }
 
 export const deleteAccount = (login: string): string => {
-  return 'ok'
+  return `deleteAccount ${login}`
 }
 
-export const getGuard = async (login: string): Promise<string | IGuard> => {
-  const maFiles = await getMaFiles()
+export const getGuard = async (login: string): Promise<string | IGuardCode> => {
+  const maFiles = await SteamUtils.getMaFiles()
   const elem = maFiles[login]
 
   if (elem) {
-    return await getGuardCode(elem?.shared_secret)
+    return await SteamUtils.getGuardCode(elem?.shared_secret)
   } else {
     return 'Аккаунт не найден'
   }
@@ -61,7 +54,7 @@ export const getGuard = async (login: string): Promise<string | IGuard> => {
 
 export const openInBrowser = async (login: string): Promise<string> => {
   try {
-    const auth = await steamAuth(login)
+    const auth = await SteamUtils.steamAuth(login)
     const url = 'https://steamcommunity.com/'
     const win = new BrowserWindow({
       width: 800,
@@ -76,4 +69,16 @@ export const openInBrowser = async (login: string): Promise<string> => {
   } catch {
     return 'no ok'
   }
+}
+
+export const createClient = async (login: string): Promise<string> => {
+  return SteamUtils.createClient(login)
+}
+
+export const getTradeOffers = async (login: string): Promise<ITradeOffer[]> => {
+  return SteamUtils.getTradeOffers(login)
+}
+
+export const acceptTradeOffer = async (login: string, tradeOfferId: string): Promise<unknown> => {
+  return SteamUtils.acceptTradeOffer(login, tradeOfferId)
 }

@@ -7,7 +7,13 @@ export const AccountApi = {
   openInBrowser: (login: string): Promise<void> =>
     window.electron.ipcRenderer.invoke('openInBrowser', login),
   updateAccountOptions: (data: IAccountOptions): Promise<IAccountOptions> =>
-    window.electron.ipcRenderer.invoke('updateAccountOptions', data)
+    window.electron.ipcRenderer.invoke('updateAccountOptions', data),
+  createClient: (login: string): Promise<string> =>
+    window.electron.ipcRenderer.invoke('createClient', login),
+  getTradeOffers: (login: string): Promise<unknown> =>
+    window.electron.ipcRenderer.invoke('getTradeOffers', login),
+  acceptTradeOffer: (data: { login: string; tradeOfferId: string }): Promise<unknown> =>
+    window.electron.ipcRenderer.invoke('acceptTradeOffer', data)
 }
 
 export const ProgrammApi = {

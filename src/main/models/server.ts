@@ -21,9 +21,27 @@ export interface IMaFile {
   }
 }
 
+import SteamUser from 'steam-user'
+import SteamCommunity from 'steamcommunity'
+import TradeOfferManager from 'steam-tradeoffer-manager'
+
+export type SteamUser = typeof SteamUser
+export type SteamCommunity = typeof SteamCommunity
+export type TradeOfferManager = typeof TradeOfferManager
+export interface IUser {
+  client?: SteamUser
+  community?: SteamCommunity
+  manager?: TradeOfferManager
+  refreshToken?: string
+  sessionID: string
+  cookies: string[]
+}
+
 export interface ISteamAuthData {
   sessionID: string
   cookies: string[]
 }
 
 export type IMaFileRecord = Record<string, IMaFile>
+
+export type UserRecords = Record<string, IUser>

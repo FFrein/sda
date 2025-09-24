@@ -1,4 +1,4 @@
-import { AccountOptionRecords, IAccountOptions, IGuardCode, UserRecords } from '@main/models/api'
+import { AccountOptionRecords, IAccountOptions, IGuardCode, ITradeOffer } from '@main/models/api'
 import SteamTotp from 'steam-totp'
 import SteamUser from 'steam-user'
 import {
@@ -7,13 +7,13 @@ import {
   readJsonFile,
   saveFileAsJson
 } from '@main/utils/file.util'
-import { IMaFile, IMaFileRecord, ISteamAuthData } from '@main/models/server'
+import { IMaFile, IMaFileRecord, ISteamAuthData, IUser, UserRecords } from '@main/models/server'
 import { ACCOUNT_OPTIONS_FILENAME } from '@main/constants/constants'
 import SteamCommunity from 'steamcommunity'
 import TradeOfferManager from 'steam-tradeoffer-manager'
 
 /// SDA Account options
-//Сделать папку наблюдаемой, вместо этой порнухи
+//Сделать папку наблюдаемой, вместо этой порнухи с loadMaFiles
 const maFiles: IMaFileRecord = {}
 const accountsOptions: AccountOptionRecords = {}
 const users: UserRecords = {}
@@ -76,47 +76,105 @@ export const updateAccountsOptions = async (data: IAccountOptions): Promise<IAcc
 }
 
 // Accounts Authorization
+// TODO придумать логику когда авторизовывать аккаунты
+// 1) При запуске? Проверка есть ли токен, если есть пробовать по токену. Если токена нету или истёк по паролю. Если пароля нету, не пробовать авторизовывать.
+// 2) При установке пароля аккаунту выполнять авторизацию?
+// 3) На всякий случай добавить кнопку переавторизации, но тогда нужно будет придумать лоигку с тротлером(или дебаунс, не помню как правильно)
+// 4) Оповещение о неправильном пароля и его последующем стерании?
+//
+export const createClient = async (login: string): Promise<string> => {
+  users[login] ??= {} as IUser
+  users[login].client ??= new SteamUser()
 
-export const createClient = (login: string): void => {
-  let client: any = undefined
-  if (users[login].client) {
-    client = users[login].client
+  const client = users[login].client
+
+  //TODO сделать фалй для хранение токенов авторизации. Живёт очень долго, около месяца или пока не сменится пароль, 2fa или не уничтожить атворизации
+  if (users[login]?.refreshToken) {
+    client.logOn({
+      refreshToken: users[login].refreshToken
+    })
   } else {
-    client = new SteamUser()
+    if (!accountsOptions[login]?.password) throw 'password not set'
+
+    client.logOn({
+      accountName: login,
+      password: accountsOptions[login]?.password,
+      twoFactorCode: SteamTotp.generateAuthCode(maFiles[login]?.shared_secret)
+    })
   }
 
-  client.logOn({
-    accountName,
-    password,
-    twoFactorCode: SteamTotp.generateAuthCode(sharedSecret)
+  client.on('sessionToken', (token) => {
+    console.log('sessionToken')
+    users[login].refreshToken = token
+    // тут можно записать его в файл для долговременного хранения
   })
 
   client.on('loggedOn', () => {
     console.log('Залогинились')
+    createCommunity(login)
     //client.setPersona(SteamUser.EPersonaState.Online)
     //client.gamesPlayed(440)
+  })
+
+  client.on('webSession', (sessionID, cookies) => {
+    console.log('webSession')
+    users[login].sessionID = sessionID
+    users[login].cookies = cookies
+
+    createManager(login)
   })
 
   client.on('disconnected', (eresult, msg) => {
     console.log(`Lost connection to Steam: ${msg} (${eresult})`)
     // Handle reconnection logic or error reporting
+    users[login].client = undefined
+    users[login].manager = undefined
+    users[login].community = undefined
+
+    if (eresult === SteamUser.EResult.InvalidPassword || eresult === SteamUser.EResult.Expired) {
+      //TODO уничтожать токен авторизации
+      users[login].refreshToken = undefined
+    }
+
+    client.logOn({
+      login,
+      password: accountsOptions[login].password,
+      twoFactorCode: SteamTotp.generateAuthCode(maFiles[login].shared_secret)
+    })
   })
 
   //TODO нужно ли мне это
   client.on('error', (err) => console.error('Steam error', err))
 
   //TODO возобновление сессии?
+  return 'ok'
 }
 
-export const createCommunity = (maFile: IMaFile): void => {
-  const community = new SteamCommunity()
+const createCommunity = (login: string): void => {
+  users[login].community ??= new SteamCommunity()
 }
 
-export const createManager = (maFile: IMaFile): void => {
-  const manager = new TradeOfferManager({
-    steam: client,
-    community: community,
+const createManager = (login: string): void => {
+  users[login].manager ??= new TradeOfferManager({
+    steam: users[login].client,
+    community: users[login].community,
     language: 'ru'
+  })
+
+  const manager = users[login].manager
+
+  manager.setCookies(users[login].cookies, (err) => {
+    if (err) {
+      console.error(`Аккаунт ${login}: Ошибка установки cookies для менеджера:`, err)
+      return
+    }
+    console.log(`Аккаунт ${login}: Менеджер готов к работе с предложениями обмена`)
+  })
+
+  manager.on('newOffer', function (offer) {
+    console.log('New incoming offer received:', offer.id)
+    // You can now process the 'offer' object
+    // e.g., offer.data, offer.getTheirInventory(), offer.getMyInventory()
   })
 }
 
@@ -147,6 +205,8 @@ export const getGuardCode = async (secret: string): Promise<IGuardCode> => {
 }
 
 //В будущем можно переписать на qr, но для этого надо будет сильно постараться
+
+//Это скорее всего нахер, я создаю клиентов и через них работаю
 export const steamAuth = async (login: string): Promise<ISteamAuthData> => {
   const client = new SteamUser()
 
@@ -177,52 +237,41 @@ export const steamAuth = async (login: string): Promise<ISteamAuthData> => {
 }
 
 // Trade Offers
-/*
-client.on('webSession', (sessionID, cookies) => {
-  console.log('Получена веб-сессия Steam')
-  manager.setCookies(cookies, (err) => {
-    if (err) {
-      console.error('Ошибка установки cookies для менеджера:', err)
-      return
-    }
-    console.log('Менеджер готов к работе с предложениями обмена')
+export const getTradeOffers = async (login: string): Promise<ITradeOffer[]> => {
+  //Бля, как правильно читать поле чтобы не вылетало
+  if (!users[login]?.manager) throw new Error('user dont have manager')
+  const { manager } = users[login]
 
-    // Получаем активные предложения обмена
-    manager.getOffers({ get_received_offers: 1, active_only: 1 }, (err, body) => {
+  console.log('getTradeOffers', login)
+
+  return new Promise((resolve, reject) => {
+    manager.getOffers(TradeOfferManager.EOfferFilter.ActiveOnly, (err, body) => {
+      if (err) return reject(err)
+
+      const offers = body?.response?.trade_offers_received ?? []
+      resolve(offers)
+    })
+  })
+}
+
+export const acceptTradeOffer = (login: string, tradeOfferId: string): Promise<unknown> => {
+  const { manager, community } = users[login]
+
+  return new Promise((resolve, reject) => {
+    manager.acceptOffer(tradeOfferId, (err, status) => {
       if (err) {
-        console.error('Ошибка получения предложений:', err)
+        reject({ text: 'Ошибка принятия предложения:', err })
         return
       }
+      resolve(`Предложение ${tradeOfferId} принято, статус: ${status}`)
 
-      const offers = body.response.trade_offers_received
-      if (!offers.length) {
-        console.log('Нет активных предложений обмена')
-        return
-      }
-
-      offers.forEach((offer) => {
-        console.log(`Предложение от ${offer.accountid_other} с id ${offer.tradeofferid}`)
-        // Здесь можно показать оффер пользователю и решить, принять ли
-
-        // Для примера — принять все предложения
-        manager.acceptOffer(offer.tradeofferid, (err, status) => {
-          if (err) {
-            console.error('Ошибка принятия предложения:', err)
-            return
-          }
-          console.log(`Предложение ${offer.tradeofferid} принято, статус: ${status}`)
-
-          // Подтверждаем через моб.аутентификатор
-          community.acceptConfirmationForObject(sharedSecret, offer.tradeofferid, (err) => {
-            if (err) {
-              console.error('Ошибка подтверждения сделки:', err)
-            } else {
-              console.log('Сделка подтверждена мобильным аутентификатором!')
-            }
-          })
-        })
+      community.acceptConfirmationForObject(maFiles[login].shared_secret, tradeOfferId, (err) => {
+        if (err) {
+          reject({ text: 'Ошибка подтверждения сделки:', err })
+        } else {
+          resolve('Сделка подтверждена мобильным аутентификатором!')
+        }
       })
     })
   })
-})
-*/
+}
