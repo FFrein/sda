@@ -7,11 +7,11 @@ export const getAccounts = async (): Promise<IAccountOptions[]> => {
 }
 
 export const createAccount = async (_, data: IAccountOptions): Promise<string> => {
-  return await AccountService.createAccount(data)
+  return AccountService.createAccount(data)
 }
 
 export const getGuard = async (_, login): Promise<string | IGuardCode> => {
-  return await AccountService.getGuard(login)
+  return AccountService.getGuard(login)
 }
 
 export function openInBrowser(_, login: string): Promise<string> {

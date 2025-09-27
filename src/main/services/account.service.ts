@@ -16,7 +16,6 @@ export const getAccount = async (): Promise<IAccountOptions[]> => {
       password: undefined
     })
   }
-
   return result
 }
 
@@ -54,14 +53,15 @@ export const getGuard = async (login: string): Promise<string | IGuardCode> => {
 
 export const openInBrowser = async (login: string): Promise<string> => {
   try {
-    const auth = await SteamUtils.steamAuth(login)
+    const user = SteamUtils.users[login]
+
     const url = 'https://steamcommunity.com/'
     const win = new BrowserWindow({
       width: 800,
       height: 600
     })
 
-    await setCookiesToWindow(win, auth.cookies)
+    await setCookiesToWindow(win, user.cookies)
 
     win.loadURL(url)
 

@@ -8,19 +8,17 @@ export const readJsonFile = async <T>(fileName: string, dir: string): Promise<T>
   return data
 }
 
-export const ensureFileExists = async (
-  fileName: string,
-  dir: string,
-  defaultContent: string = '{}'
-): Promise<string> => {
+export const ensureFileExists = async (fileName: string, dir: string): Promise<string> => {
   const filePath = path.join(dir, fileName)
 
   try {
+    console.log(1)
     await fs.promises.access(filePath, fs.constants.F_OK)
     return filePath
   } catch {
+    console.log(2)
     await fs.promises.mkdir(dir, { recursive: true })
-    await fs.promises.writeFile(filePath, defaultContent, 'utf8')
+    await fs.promises.writeFile(filePath, JSON.stringify({}), 'utf8')
     return filePath
   }
 }

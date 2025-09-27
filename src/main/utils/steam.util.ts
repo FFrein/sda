@@ -7,16 +7,17 @@ import {
   readJsonFile,
   saveFileAsJson
 } from '@main/utils/file.util'
-import { IMaFile, IMaFileRecord, ISteamAuthData, IUser, UserRecords } from '@main/models/server'
+import { IMaFile, IMaFileRecord, IUser, UserRecords } from '@main/models/server'
 import { ACCOUNT_OPTIONS_FILENAME } from '@main/constants/constants'
 import SteamCommunity from 'steamcommunity'
 import TradeOfferManager from 'steam-tradeoffer-manager'
+import { sendNotify } from './notify.util'
 
 /// SDA Account options
 //Сделать папку наблюдаемой, вместо этой порнухи с loadMaFiles
 const maFiles: IMaFileRecord = {}
 const accountsOptions: AccountOptionRecords = {}
-const users: UserRecords = {}
+export const users: UserRecords = {}
 let globalOffset: number | null = null
 
 export const loadMaFiles = async (): Promise<IMaFileRecord> => {
@@ -110,14 +111,14 @@ export const createClient = async (login: string): Promise<string> => {
   })
 
   client.on('loggedOn', () => {
-    console.log('Залогинились')
+    sendNotify('Залогинились')
     createCommunity(login)
     //client.setPersona(SteamUser.EPersonaState.Online)
     //client.gamesPlayed(440)
   })
 
   client.on('webSession', (sessionID, cookies) => {
-    console.log('webSession')
+    sendNotify('webSession')
     users[login].sessionID = sessionID
     users[login].cookies = cookies
 
@@ -125,7 +126,7 @@ export const createClient = async (login: string): Promise<string> => {
   })
 
   client.on('disconnected', (eresult, msg) => {
-    console.log(`Lost connection to Steam: ${msg} (${eresult})`)
+    sendNotify(`Lost connection to Steam: ${msg} (${eresult})`)
     // Handle reconnection logic or error reporting
     users[login].client = undefined
     users[login].manager = undefined
@@ -205,36 +206,6 @@ export const getGuardCode = async (secret: string): Promise<IGuardCode> => {
 }
 
 //В будущем можно переписать на qr, но для этого надо будет сильно постараться
-
-//Это скорее всего нахер, я создаю клиентов и через них работаю
-export const steamAuth = async (login: string): Promise<ISteamAuthData> => {
-  const client = new SteamUser()
-
-  const guard = await getGuardCode(maFiles[login].shared_secret)
-
-  if (!accountsOptions[login].password) throw 'Не задан пароль аккаунта'
-
-  await client.logOn({
-    accountName: login,
-    password: accountsOptions[login].password,
-    twoFactorCode: guard.code
-  })
-
-  const auth = new Promise((resolve, reject) => {
-    client.on('webSession', async (sessionID, cookies) => {
-      try {
-        resolve({ sessionID, cookies })
-      } catch (e: unknown) {
-        reject(e)
-      }
-    })
-  })
-
-  //TODO нужно ли мне это
-  client.on('error', (err) => console.error('Steam error', err))
-
-  return auth as Promise<ISteamAuthData>
-}
 
 // Trade Offers
 export const getTradeOffers = async (login: string): Promise<ITradeOffer[]> => {
