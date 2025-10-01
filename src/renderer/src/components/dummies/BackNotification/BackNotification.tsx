@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 const BackNotification: React.FC = () => {
   const [message, setMessage] = useState()
 
-  window.electron.ipcRenderer.on('backendNotify', (event, arg) => {
+  window.electron.ipcRenderer.on('backendNotify', (_, arg) => {
     setMessage(arg)
   })
 

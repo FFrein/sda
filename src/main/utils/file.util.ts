@@ -8,18 +8,30 @@ export const readJsonFile = async <T>(fileName: string, dir: string): Promise<T>
   return data
 }
 
-export const ensureFileExists = async (fileName: string, dir: string): Promise<string> => {
+export const ensureFileExists = async (fileName: string, dir: string): Promise<boolean> => {
   const filePath = path.join(dir, fileName)
 
   try {
-    console.log(1)
     await fs.promises.access(filePath, fs.constants.F_OK)
-    return filePath
+    return true
   } catch {
-    console.log(2)
-    await fs.promises.mkdir(dir, { recursive: true })
-    await fs.promises.writeFile(filePath, JSON.stringify({}), 'utf8')
-    return filePath
+    return false
+  }
+}
+
+export const ensureDirExists = async (dirPath: string): Promise<boolean> => {
+  try {
+    const stats = await fs.promises.stat(dirPath)
+    return stats.isDirectory()
+  } catch {
+    return false
+  }
+}
+
+export const createDirIfNotExists = async (dirPath: string): Promise<void> => {
+  const exists = await ensureDirExists(dirPath)
+  if (!exists) {
+    await fs.promises.mkdir(dirPath, { recursive: true })
   }
 }
 
@@ -53,4 +65,12 @@ export const readFileListInDir = (directoryPath: string, ext?: Array<string>): A
     // TODO: отправить ошибку на фронт
     return []
   }
+}
+
+export const watchFile = (fileName: string, func: () => void): void => {
+  fs.watch(fileName, func)
+}
+
+export const watchFolder = (folderName: string, func: () => void): void => {
+  fs.watch(folderName, func)
 }

@@ -56,8 +56,9 @@ export const useAccountsList = (): IUseAccountList => {
       case 'Offers': {
         return <Offers account={account} />
       }
-      default:
-        ;<p>Not Found</p>
+      default: {
+        return <p>Not Found</p>
+      }
     }
   }
 

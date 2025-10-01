@@ -17,5 +17,8 @@ export const AccountApi = {
 }
 
 export const ProgrammApi = {
-  exit: () => window.electron.ipcRenderer.send('exit')
+  exit: () => window.electron.ipcRenderer.send('exit'),
+  getSettings: () => window.electron.ipcRenderer.invoke('getSettings'),
+  updateSettings: (data: { maFileFolder: string }) =>
+    window.electron.ipcRenderer.invoke('updateSettings', data)
 }

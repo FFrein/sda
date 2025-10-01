@@ -1,5 +1,11 @@
-const Settings: React.FC = () => {
-  return <div>Settings</div>
+import Settings from '@renderer/components/dummies/Settings/Settings'
+
+const SettingsPage: React.FC = () => {
+  return (
+    <div>
+      <Settings />
+    </div>
+  )
 }
 
-export default Settings
+export default SettingsPage

@@ -15,7 +15,7 @@ const Offers: React.FC<ConfirmationsProps> = ({ account }: ConfirmationsProps) =
     console.log(res)
   }, [res])
 
-  const createClientHandle = async (): void => {
+  const createClientHandle = async (): Promise<void> => {
     const data = await AccountApi.createClient(account.login)
     console.log(data)
   }

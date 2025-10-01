@@ -7,7 +7,6 @@ import '@main/routes/accounts.router'
 import '@main/routes/programm.router'
 
 export let mainWindow: BrowserWindow
-
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({

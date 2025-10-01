@@ -2,29 +2,39 @@ import { AccountOptionRecords, IAccountOptions, IGuardCode, ITradeOffer } from '
 import SteamTotp from 'steam-totp'
 import SteamUser from 'steam-user'
 import {
+  createDirIfNotExists,
   ensureFileExists,
   readFileListInDir,
   readJsonFile,
   saveFileAsJson
 } from '@main/utils/file.util'
 import { IMaFile, IMaFileRecord, IUser, UserRecords } from '@main/models/server'
-import { ACCOUNT_OPTIONS_FILENAME } from '@main/constants/constants'
+import {
+  ACCOUNT_OPTIONS_FILENAME,
+  ACCOUNT_OPTIONS_FOLDER,
+  DEFAULT_MAFILE_FOLDER
+} from '@main/constants/constants'
 import SteamCommunity from 'steamcommunity'
 import TradeOfferManager from 'steam-tradeoffer-manager'
 import { sendNotify } from './notify.util'
+import { store } from '@main/store/store'
 
 /// SDA Account options
-//Сделать папку наблюдаемой, вместо этой порнухи с loadMaFiles
+//Сделать папку наблюдаемой, вместо loadMaFiles
 const maFiles: IMaFileRecord = {}
 const accountsOptions: AccountOptionRecords = {}
 export const users: UserRecords = {}
 let globalOffset: number | null = null
 
 export const loadMaFiles = async (): Promise<IMaFileRecord> => {
-  const files = readFileListInDir('/home/a485/Документы/sda', ['.maFile'])
+  const maFileFolder = store.get('maFileFolder', DEFAULT_MAFILE_FOLDER) as string
+
+  createDirIfNotExists(maFileFolder)
+
+  const files = readFileListInDir(maFileFolder, ['.maFile'])
 
   files.forEach(async (fileName) => {
-    const maFile = await readJsonFile<IMaFile>(fileName, '/home/a485/Документы/sda')
+    const maFile = await readJsonFile<IMaFile>(fileName, maFileFolder)
     maFiles[maFile.account_name] = maFile
   })
 
@@ -45,8 +55,13 @@ export const getMaFileByLogin = async (login: string): Promise<IMaFile> => {
 
 export const loadAccountsOptions = async (): Promise<void> => {
   try {
-    await ensureFileExists(ACCOUNT_OPTIONS_FILENAME, __dirname)
-    const options = await readJsonFile<AccountOptionRecords>(ACCOUNT_OPTIONS_FILENAME, __dirname)
+    const fileExist = await ensureFileExists(ACCOUNT_OPTIONS_FILENAME, ACCOUNT_OPTIONS_FOLDER)
+    if (!fileExist) await saveFileAsJson(ACCOUNT_OPTIONS_FILENAME, ACCOUNT_OPTIONS_FOLDER, {})
+
+    const options = await readJsonFile<AccountOptionRecords>(
+      ACCOUNT_OPTIONS_FILENAME,
+      ACCOUNT_OPTIONS_FOLDER
+    )
 
     for (const elem in maFiles) {
       const login = maFiles[elem].account_name
