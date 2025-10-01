@@ -25,6 +25,7 @@ const useSettingsHooks = (): IUseSettingsHooks => {
   useEffect(() => {
     if (res) {
       setValue('maFileFolder', res.maFileFolder)
+      setValue('optionsFolder', res.optionsFolder)
     }
   }, [res])
 

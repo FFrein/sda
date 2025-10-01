@@ -6,6 +6,8 @@ const Settings: React.FC = () => {
   return (
     <form onSubmit={submitFormHandler}>
       <input {...register('maFileFolder')}></input>
+      <input {...register('optionsFolder')}></input>
+
       <button type="submit">Сохранить</button>
     </form>
   )
