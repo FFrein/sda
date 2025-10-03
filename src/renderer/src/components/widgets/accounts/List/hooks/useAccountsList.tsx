@@ -4,9 +4,9 @@ import { ACCOUNTS_PER_PAGE } from '@renderer/constants/constants'
 import useDataLoader from '@renderer/hooks/useLoadData'
 import { IAccountOptions } from '@renderer/models/common/api'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import Confirmations from '../../Confirmations'
+import GuardCode from '../../GuardCode'
 import EditAccount from '../../Edit'
-import Offers from '../../Offers'
+import Offers from '../../TradeOffersList'
 
 export interface IUseAccountList {
   dialogHandleRef: React.RefObject<DialogHandle | undefined>
@@ -48,7 +48,7 @@ export const useAccountsList = (): IUseAccountList => {
     switch (type) {
       //TODO сделать enum с вариантами
       case 'Code': {
-        return <Confirmations account={account} />
+        return <GuardCode account={account} />
       }
       case 'Edit': {
         return <EditAccount account={account} />

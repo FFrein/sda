@@ -1,4 +1,4 @@
-import { IGuardCode, ITradeOffer } from '@main/models/api'
+import { IGuardCode } from '@main/models/api'
 import SteamTotp from 'steam-totp'
 import SteamUser from 'steam-user'
 import { IUser } from '@main/models/server'
@@ -7,7 +7,7 @@ import TradeOfferManager from 'steam-tradeoffer-manager'
 import { sendNotify } from '../notify.util'
 import { accountsOptions, maFiles, users } from '@main/store/store'
 
-let globalOffset: number | null = null
+export let globalOffset: number | null = null
 
 // Accounts Authorization
 // TODO придумать логику когда авторизовывать аккаунты
@@ -24,9 +24,10 @@ export const createClient = async (login: string): Promise<void> => {
     const client = users[login].client
 
     //TODO сделать фалй для хранение токенов авторизации. Живёт очень долго, около месяца или пока не сменится пароль, 2fa или не уничтожить атворизации
-    if (users[login]?.refreshToken) {
+    if (accountsOptions[login]?.refreshToken) {
+      sendNotify(`log on with token ${login}'`)
       client.logOn({
-        refreshToken: users[login].refreshToken
+        refreshToken: accountsOptions[login].refreshToken
       })
     } else {
       if (!accountsOptions[login]?.password) throw 'password not set'
@@ -38,20 +39,18 @@ export const createClient = async (login: string): Promise<void> => {
       })
     }
 
-    client.on('sessionToken', (token) => {
-      sendNotify('sessionToken')
-      users[login].refreshToken = token
+    client.on('refreshToken', (token) => {
+      sendNotify('refreshToken')
+      accountsOptions[login] = { ...accountsOptions[login], refreshToken: token }
     })
 
     client.on('loggedOn', () => {
-      sendNotify('Залогинились')
       createCommunity(login)
       //client.setPersona(SteamUser.EPersonaState.Online)
       //client.gamesPlayed(440)
     })
 
     client.on('webSession', (sessionID, cookies) => {
-      sendNotify('webSession')
       users[login].sessionID = sessionID
       users[login].cookies = cookies
 
@@ -66,7 +65,7 @@ export const createClient = async (login: string): Promise<void> => {
       users[login].community = undefined
 
       if (eresult === SteamUser.EResult.InvalidPassword || eresult === SteamUser.EResult.Expired) {
-        users[login].refreshToken = undefined
+        accountsOptions[login].refreshToken = undefined
       }
 
       client.logOn({
@@ -105,7 +104,7 @@ const createManager = (login: string): void => {
       sendNotify(`ERROR | Аккаунт ${login}: Ошибка установки cookies для менеджера: ${err}`)
       return
     }
-    sendNotify(`Аккаунт ${login}: Менеджер готов к работе с предложениями обмена`)
+    sendNotify(`Аккаунт ${login}: готов к эксплуатации`)
   })
 
   manager.on('newOffer', function (offer) {
@@ -139,44 +138,4 @@ export const getGuardCode = async (secret: string): Promise<IGuardCode> => {
   const ttl = 30 - ((now + globalOffset!) % 30)
 
   return { code, ttl }
-}
-
-// Trade Offers
-export const getTradeOffers = async (login: string): Promise<ITradeOffer[]> => {
-  //Бля, как правильно читать поле чтобы не вылетало
-  if (!users[login]?.manager) throw new Error('user dont have manager')
-  const { manager } = users[login]
-
-  console.log('getTradeOffers', login)
-
-  return new Promise((resolve, reject) => {
-    manager.getOffers(TradeOfferManager.EOfferFilter.ActiveOnly, (err, body) => {
-      if (err) return reject(err)
-
-      const offers = body?.response?.trade_offers_received ?? []
-      resolve(offers)
-    })
-  })
-}
-
-export const acceptTradeOffer = (login: string, tradeOfferId: string): Promise<unknown> => {
-  const { manager, community } = users[login]
-
-  return new Promise((resolve, reject) => {
-    manager.acceptOffer(tradeOfferId, (err, status) => {
-      if (err) {
-        reject({ text: 'Ошибка принятия предложения:', err })
-        return
-      }
-      resolve(`Предложение ${tradeOfferId} принято, статус: ${status}`)
-
-      community.acceptConfirmationForObject(maFiles[login].shared_secret, tradeOfferId, (err) => {
-        if (err) {
-          reject({ text: 'Ошибка подтверждения сделки:', err })
-        } else {
-          resolve('Сделка подтверждена мобильным аутентификатором!')
-        }
-      })
-    })
-  })
 }

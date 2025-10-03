@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 
 import '@main/routes/accounts.router'
 import '@main/routes/programm.router'
+import '@main/routes/offers.router'
 
 export let mainWindow: BrowserWindow
 function createWindow(): void {

@@ -12,5 +12,3 @@ ipcMain.handle('openInBrowser', AccountController.openInBrowser)
 //Это больше про функции доступные авторизованному аккаунту
 //МБ другой контроллер?
 ipcMain.handle('createClient', AccountController.createClient)
-ipcMain.handle('getTradeOffers', AccountController.getTradeOffers)
-ipcMain.handle('acceptTradeOffer', AccountController.acceptTradeOffer)

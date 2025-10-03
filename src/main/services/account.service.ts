@@ -1,4 +1,4 @@
-import { IGuardCode, IAccountOptions, ITradeOffer } from '../models/api'
+import { IGuardCode, IAccountOptions } from '../models/api'
 import * as SteamUtils from '@main/utils/steam/steam.util'
 import * as MaFiles from '@main/utils/steam/maFile.util'
 import * as AccountOptions from '@main/utils/steam/accountOptions.util'
@@ -77,12 +77,4 @@ export const openInBrowser = async (login: string): Promise<void> => {
 
 export const createClient = async (login: string): Promise<void> => {
   await SteamUtils.createClient(login)
-}
-
-export const getTradeOffers = async (login: string): Promise<ITradeOffer[]> => {
-  return SteamUtils.getTradeOffers(login)
-}
-
-export const acceptTradeOffer = async (login: string, tradeOfferId: string): Promise<void> => {
-  await SteamUtils.acceptTradeOffer(login, tradeOfferId)
 }

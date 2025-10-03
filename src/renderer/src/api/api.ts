@@ -1,4 +1,8 @@
-import { IAccountOptions } from '@renderer/models/common/api'
+import {
+  IAccountOptions,
+  IActOnConfirmationParam,
+  IMobileConfirmation
+} from '@renderer/models/common/api'
 
 export const AccountApi = {
   getAccountList: (): Promise<IAccountOptions[]> =>
@@ -13,7 +17,11 @@ export const AccountApi = {
   getTradeOffers: (login: string): Promise<unknown> =>
     window.electron.ipcRenderer.invoke('getTradeOffers', login),
   acceptTradeOffer: (data: { login: string; tradeOfferId: string }): Promise<unknown> =>
-    window.electron.ipcRenderer.invoke('acceptTradeOffer', data)
+    window.electron.ipcRenderer.invoke('acceptTradeOffer', data),
+  getMobileConfirmations: (login: string): Promise<IMobileConfirmation[]> =>
+    window.electron.ipcRenderer.invoke('getMobileConfirmations', login),
+  actOnConfirmation: (data: IActOnConfirmationParam): Promise<boolean> =>
+    window.electron.ipcRenderer.invoke('actOnConfirmation', data)
 }
 
 export const ProgrammApi = {

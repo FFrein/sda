@@ -32,7 +32,6 @@ export interface IUser {
   client?: SteamUser
   community?: SteamCommunity
   manager?: TradeOfferManager
-  refreshToken?: string
   sessionID: string
   cookies: string[]
 }

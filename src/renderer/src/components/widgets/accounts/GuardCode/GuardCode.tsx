@@ -3,11 +3,11 @@ import { AccountApi } from '@renderer/api/api'
 import { IAccountOptions } from '@renderer/models/common/api'
 import { useState, useEffect } from 'react'
 
-export interface ConfirmationsProps {
+export interface GuardCodeProps {
   account: IAccountOptions
 }
 
-const Confirmations: React.FC<ConfirmationsProps> = ({ account }: ConfirmationsProps) => {
+const GuardCode: React.FC<GuardCodeProps> = ({ account }: GuardCodeProps) => {
   const [code, setCode] = useState('')
   const [ttl, setTtl] = useState(30)
 
@@ -54,4 +54,4 @@ const Confirmations: React.FC<ConfirmationsProps> = ({ account }: ConfirmationsP
   )
 }
 
-export default Confirmations
+export default GuardCode

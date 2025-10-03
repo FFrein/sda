@@ -41,5 +41,5 @@ export const save = (): void => {
 }
 
 export const update = (data: IAccountOptions): void => {
-  accountsOptions[data.login] = data
+  accountsOptions[data.login] = { ...accountsOptions[data.login], ...data }
 }

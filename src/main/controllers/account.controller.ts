@@ -25,13 +25,3 @@ export function updateAccountOptions(_, data: IAccountOptions): Promise<IAccount
 export function createClient(_, login: string): Promise<string> {
   return AccountService.createClient(login)
 }
-
-export function getTradeOffers(_, login: string): Promise<ITradeOffer[]> {
-  return AccountService.getTradeOffers(login)
-}
-export function acceptTradeOffer(
-  _,
-  data: { login: string; tradeOfferId: string }
-): Promise<unknown> {
-  return AccountService.acceptTradeOffer(data.login, data.tradeOfferId)
-}

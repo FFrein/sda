@@ -20,6 +20,10 @@ const Account: React.FC<AccountProps> = ({ account, openDialog }: AccountProps) 
     loadData(account.login)
   }
 
+  const createClientHandle = async (): Promise<void> => {
+    AccountApi.createClient(account.login)
+  }
+
   return (
     <ListItem
       className={styles.item}
@@ -57,6 +61,8 @@ const Account: React.FC<AccountProps> = ({ account, openDialog }: AccountProps) 
         >
           Code
         </Button>
+        <Button onClick={createClientHandle}>Create client</Button>
+
         <Button
           variant="outlined"
           color="info"

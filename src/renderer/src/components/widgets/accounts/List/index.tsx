@@ -1,7 +1,7 @@
 import { Box, List } from '@mui/material'
 import { IAccountOptions } from '@renderer/models/common/api'
-import Account from '@renderer/components/widgets/accounts/View/index'
-import { useAccountsList } from './hooks/useuseAccountsList'
+import Account from '@renderer/components/widgets/accounts/Account/index'
+import { useAccountsList } from './hooks/useAccountsList'
 import CustomDialog from '../../Dialog'
 import CustomPagination from '../../Pagination/Pagination'
 
@@ -39,7 +39,7 @@ export const AccountsList: React.FC<AccountsListProps> = () => {
       </List>
       {totalPages > 1 && <CustomPagination totalPages={totalPages} page={page} setPage={setPage} />}
 
-      <CustomDialog ref={dialogHandleRef} title={'Редактирование аккаунта'}>
+      <CustomDialog ref={dialogHandleRef} title={'Информация об аккаунте'}>
         {renderDialog()}
       </CustomDialog>
     </Box>
