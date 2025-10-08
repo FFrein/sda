@@ -1,4 +1,4 @@
-import BackNotification from '@renderer/components/dummies/BackNotification'
+import BackNotification from '@renderer/components/dummies/Notification'
 import { Navigation } from '@renderer/components/dummies/Navigation/Navigation'
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'

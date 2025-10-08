@@ -7,10 +7,11 @@ import WebIcon from '@mui/icons-material/Web'
 import useDataLoader from '@renderer/hooks/useLoadData'
 import { AccountApi } from '@renderer/api/api'
 import ArticleIcon from '@mui/icons-material/Article'
+import { EAccDialog } from '../List/hooks/useAccountsList'
 
 interface AccountProps {
   account: IAccountOptions
-  openDialog: any
+  openDialog: (type: EAccDialog, acc: IAccountOptions) => void
 }
 
 const Account: React.FC<AccountProps> = ({ account, openDialog }: AccountProps) => {
@@ -33,7 +34,7 @@ const Account: React.FC<AccountProps> = ({ account, openDialog }: AccountProps) 
             edge="end"
             aria-label="delete"
             onClick={() => {
-              openDialog('Edit', account)
+              openDialog(EAccDialog.Edit, account)
             }}
           >
             <EditIcon />
@@ -42,8 +43,8 @@ const Account: React.FC<AccountProps> = ({ account, openDialog }: AccountProps) 
       }
     >
       <Box margin={'0 auto 0 0'} display={'flex'} alignItems={'center'}>
-        <AccountCircleOutlinedIcon />
-        <ListItemText primary={account.login} />
+        <AccountCircleOutlinedIcon style={{ color: account.isAuth ? 'green' : 'red' }} />
+        <ListItemText primary={<p style={{ padding: '0 0 0 8px' }}>{account.login}</p>} />
       </Box>
       <Box
         padding={'4px'}
@@ -56,24 +57,26 @@ const Account: React.FC<AccountProps> = ({ account, openDialog }: AccountProps) 
         <Button
           color={'primary'}
           onClick={() => {
-            openDialog('Code', account)
+            openDialog(EAccDialog.Code, account)
           }}
         >
           Code
         </Button>
-        <Button onClick={createClientHandle}>Create client</Button>
+
+        {!account.isAuth && <Button onClick={createClientHandle}>Auth</Button>}
 
         <Button
           variant="outlined"
           color="info"
+          disabled={!account.isAuth}
           onClick={() => {
-            openDialog('Offers', account)
+            openDialog(EAccDialog.Offers, account)
           }}
         >
           <ArticleIcon />
           <p>Offers</p>
         </Button>
-        <Button variant="outlined" onClick={openInBrowserHandle}>
+        <Button disabled={!account.isAuth} variant="outlined" onClick={openInBrowserHandle}>
           <WebIcon />
           <p>Web</p>
         </Button>

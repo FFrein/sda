@@ -6,6 +6,7 @@ import icon from '../../resources/icon.png?asset'
 import '@main/routes/accounts.router'
 import '@main/routes/programm.router'
 import '@main/routes/offers.router'
+import { authAccounts } from './utils/steam/steam.util'
 
 export let mainWindow: BrowserWindow
 function createWindow(): void {
@@ -63,6 +64,9 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  // Authorization steam accounts
+  authAccounts()
 
   createWindow()
 

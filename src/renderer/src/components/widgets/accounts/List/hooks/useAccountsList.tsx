@@ -1,59 +1,59 @@
-import { AccountApi } from '@renderer/api/api'
 import { DialogHandle } from '@renderer/components/widgets/Dialog'
 import { ACCOUNTS_PER_PAGE } from '@renderer/constants/constants'
-import useDataLoader from '@renderer/hooks/useLoadData'
 import { IAccountOptions } from '@renderer/models/common/api'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import GuardCode from '../../GuardCode'
 import EditAccount from '../../Edit'
 import Offers from '../../TradeOffersList'
+import { useAccountsStore } from '@renderer/stores/accounts.store'
 
 export interface IUseAccountList {
   dialogHandleRef: React.RefObject<DialogHandle | undefined>
   currentItems: IAccountOptions[]
   totalPages: number
   page: number
+  type: EAccDialog
   setPage: React.Dispatch<React.SetStateAction<number>>
-  setType: React.Dispatch<React.SetStateAction<string>>
-  type: string
-  openDialogHandle: (type: string, acc: IAccountOptions) => void
+  setType: React.Dispatch<React.SetStateAction<EAccDialog>>
+  openDialogHandle: (type: EAccDialog, acc: IAccountOptions) => void
   renderDialog: () => React.ReactNode
+}
+
+export enum EAccDialog {
+  Code = 'Code',
+  Edit = 'Edit',
+  Offers = 'Offers'
 }
 
 export const useAccountsList = (): IUseAccountList => {
   const [page, setPage] = useState<number>(1)
-  const [type, setType] = useState('Code')
+  const [type, setType] = useState<EAccDialog>(EAccDialog.Code)
   const [account, setAccount] = useState<IAccountOptions>({} as IAccountOptions)
 
-  const { loadData, res } = useDataLoader(AccountApi.getAccountList)
-
-  useEffect(() => {
-    loadData({})
-  }, [])
+  const { accounts } = useAccountsStore()
 
   const dialogHandleRef = useRef<DialogHandle>(undefined)
 
   const currentItems = useMemo(() => {
-    if (res) {
+    if (accounts) {
       const start = (page - 1) * ACCOUNTS_PER_PAGE
       const end = start + ACCOUNTS_PER_PAGE
-      return res.slice(start, end)
+      return accounts.slice(start, end)
     }
     return []
-  }, [res, page])
+  }, [accounts, page])
 
-  const totalPages = Math.ceil((res?.length || 0) / ACCOUNTS_PER_PAGE)
+  const totalPages = Math.ceil((accounts?.length || 0) / ACCOUNTS_PER_PAGE)
 
   const renderDialog = (): React.ReactNode => {
     switch (type) {
-      //TODO сделать enum с вариантами
-      case 'Code': {
+      case EAccDialog.Code: {
         return <GuardCode account={account} />
       }
-      case 'Edit': {
+      case EAccDialog.Edit: {
         return <EditAccount account={account} />
       }
-      case 'Offers': {
+      case EAccDialog.Offers: {
         return <Offers account={account} />
       }
       default: {
@@ -62,7 +62,7 @@ export const useAccountsList = (): IUseAccountList => {
     }
   }
 
-  const openDialogHandle = (type: string, acc: IAccountOptions): void => {
+  const openDialogHandle = (type: EAccDialog, acc: IAccountOptions): void => {
     setType(type)
     setAccount(acc)
     if (dialogHandleRef) {
@@ -75,9 +75,9 @@ export const useAccountsList = (): IUseAccountList => {
     currentItems,
     totalPages,
     page,
+    type,
     setPage,
     setType,
-    type,
     openDialogHandle,
     renderDialog
   }

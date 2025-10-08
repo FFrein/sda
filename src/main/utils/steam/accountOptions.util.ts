@@ -1,7 +1,7 @@
 import { AccountOptionRecords, IAccountOptions } from '@main/models/api'
 import { ensureFileExists, readJsonFile, saveFileAsJson } from '@main/utils/file.util'
 import { ACCOUNT_OPTIONS_FILENAME, ACCOUNT_OPTIONS_FOLDER } from '@main/constants/constants'
-import { sendNotify } from '../notify.util'
+import Notification from '../notify.util'
 import { _accountsOptions, accountsOptions, maFiles, store } from '@main/store/store'
 
 export const load = async (): Promise<void> => {
@@ -26,7 +26,7 @@ export const load = async (): Promise<void> => {
     }
   } catch (e: unknown) {
     console.error(e)
-    sendNotify(`Error | loadAccountsOptions: ${e}`)
+    Notification.error('loadAccountsOptions', `${e}`)
   }
 }
 

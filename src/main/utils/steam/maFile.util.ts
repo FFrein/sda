@@ -26,6 +26,7 @@ export const load = async (): Promise<IMaFileRecord> => {
 
 export const get = async (): Promise<IMaFileRecord> => {
   if (!maFiles) await load()
+
   return maFiles
 }
 
@@ -47,7 +48,6 @@ export const create = async (login: string, password: string): Promise<void> => 
   client.logOn(logOnOptions)
 
   client.on('loggedOn', () => {
-    console.log('Logged into Steam')
     client.setPersona(SteamUser.EPersonaState.Online)
   })
 

@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron'
-import { sendNotify } from './notify.util'
+import Notification from './notify.util'
 
 export const setCookiesToWindow = async (
   win: BrowserWindow,
@@ -23,7 +23,7 @@ export const setCookiesToWindow = async (
         httpOnly: false
       })
     } catch (err) {
-      sendNotify(`Ошибка при установке куки, ${name}, ${err}`)
+      Notification.error(`Открытие браузера`, `Ошибка при установке куки, ${name}, ${err}`)
       console.error('Ошибка при установке куки', name, err)
     }
   }

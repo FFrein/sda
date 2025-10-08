@@ -4,22 +4,22 @@ import * as MaFiles from '@main/utils/steam/maFile.util'
 import * as AccountOptions from '@main/utils/steam/accountOptions.util'
 import { BrowserWindow } from 'electron'
 import { setCookiesToWindow } from '@main/utils/window.util'
-import { sendNotify } from '@main/utils/notify.util'
+import Notification from '@main/utils/notify.util'
 import { users } from '@main/store/store'
 
 export const getAccount = async (): Promise<IAccountOptions[]> => {
   const maFiles = await MaFiles.load()
-  const accountsOptions = await AccountOptions.get()
 
   const result = [] as IAccountOptions[]
 
   for (const acc in maFiles) {
+    const login = maFiles[acc].account_name
+    //TODO наверное стоит передавть isAuth
     result.push({
-      ...accountsOptions[maFiles[acc].account_name],
-      login: maFiles[acc].account_name,
-      password: undefined
+      login: login
     })
   }
+
   return result
 }
 
@@ -55,10 +55,10 @@ export const openInBrowser = async (login: string): Promise<void> => {
     const user = users[login]
 
     if (!user) {
-      throw `ERROR | Клиент для пользователя ${login} не создан`
+      throw `Клиент для пользователя ${login} не создан`
     }
     if (!user.cookies) {
-      throw `ERROR | cookies для пользователя ${login} не созданы`
+      throw `cookies для пользователя ${login} не созданы`
     }
 
     const url = 'https://steamcommunity.com/'
@@ -71,7 +71,7 @@ export const openInBrowser = async (login: string): Promise<void> => {
 
     win.loadURL(url)
   } catch (e) {
-    sendNotify(`${e}`)
+    Notification.error(`Открытие в браузере`, `${e}`)
   }
 }
 

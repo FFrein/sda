@@ -4,10 +4,12 @@ import SteamUser from 'steam-user'
 import { IUser } from '@main/models/server'
 import SteamCommunity from 'steamcommunity'
 import TradeOfferManager from 'steam-tradeoffer-manager'
-import { sendNotify } from '../notify.util'
+import Notification from '../notify.util'
 import { accountsOptions, maFiles, users } from '@main/store/store'
 
 export let globalOffset: number | null = null
+
+export const authQueue: string[] = []
 
 // Accounts Authorization
 // TODO придумать логику когда авторизовывать аккаунты
@@ -23,9 +25,7 @@ export const createClient = async (login: string): Promise<void> => {
 
     const client = users[login].client
 
-    //TODO сделать фалй для хранение токенов авторизации. Живёт очень долго, около месяца или пока не сменится пароль, 2fa или не уничтожить атворизации
     if (accountsOptions[login]?.refreshToken) {
-      sendNotify(`log on with token ${login}'`)
       client.logOn({
         refreshToken: accountsOptions[login].refreshToken
       })
@@ -40,12 +40,12 @@ export const createClient = async (login: string): Promise<void> => {
     }
 
     client.on('refreshToken', (token) => {
-      sendNotify('refreshToken')
       accountsOptions[login] = { ...accountsOptions[login], refreshToken: token }
     })
 
     client.on('loggedOn', () => {
       createCommunity(login)
+      Notification.accountLoggedOn(login)
       //client.setPersona(SteamUser.EPersonaState.Online)
       //client.gamesPlayed(440)
     })
@@ -58,8 +58,8 @@ export const createClient = async (login: string): Promise<void> => {
     })
 
     client.on('disconnected', (eresult, msg) => {
-      sendNotify(`Lost connection to Steam: ${msg} (${eresult})`)
-      // Handle reconnection logic or error reporting
+      Notification.accountLoggedOff(login, msg)
+
       users[login].client = undefined
       users[login].manager = undefined
       users[login].community = undefined
@@ -77,12 +77,12 @@ export const createClient = async (login: string): Promise<void> => {
 
     //TODO нужно ли мне это
     client.on('error', (e) => {
-      sendNotify(`Error | Steam error: ${e}`)
+      Notification.error(`Аккаунт ${login}`, `${e}`)
     })
 
     //TODO возобновление сессии?
   } catch (e) {
-    sendNotify(`ERROR | createClient | ${e}`)
+    Notification.error(`Аккаунт ${login}`, `${e}`)
   }
 }
 
@@ -101,14 +101,13 @@ const createManager = (login: string): void => {
 
   manager.setCookies(users[login].cookies, (err) => {
     if (err) {
-      sendNotify(`ERROR | Аккаунт ${login}: Ошибка установки cookies для менеджера: ${err}`)
+      Notification.error(`Аккаунт ${login}`, `Ошибка установки cookies для менеджера: ${err}`)
       return
     }
-    sendNotify(`Аккаунт ${login}: готов к эксплуатации`)
   })
 
   manager.on('newOffer', function (offer) {
-    sendNotify(`New incoming offer received: ${offer.id}`)
+    Notification.message(`New incoming offer received: ${offer.id}`)
     // You can now process the 'offer' object
     // e.g., offer.data, offer.getTheirInventory(), offer.getMyInventory()
   })
@@ -138,4 +137,11 @@ export const getGuardCode = async (secret: string): Promise<IGuardCode> => {
   const ttl = 30 - ((now + globalOffset!) % 30)
 
   return { code, ttl }
+}
+
+export const authAccounts = async (): Promise<void> => {
+  setInterval(() => {
+    const login = authQueue.pop()
+    login && createClient(login)
+  }, 30000)
 }

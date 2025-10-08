@@ -1,3 +1,4 @@
+import { Stack } from '@mui/material'
 import useSettingsHooks from './hooks/useSettingsHook'
 
 const Settings: React.FC = () => {
@@ -5,10 +6,14 @@ const Settings: React.FC = () => {
 
   return (
     <form onSubmit={submitFormHandler}>
-      <input {...register('maFileFolder')}></input>
-      <input {...register('optionsFolder')}></input>
+      <Stack>
+        <label>maFileFolder</label>
+        <input {...register('maFileFolder')}></input>
+        <label>optionsFolder</label>
+        <input {...register('optionsFolder')}></input>
 
-      <button type="submit">Сохранить</button>
+        <button type="submit">Сохранить</button>
+      </Stack>
     </form>
   )
 }

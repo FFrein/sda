@@ -2,6 +2,7 @@ export interface IAccountOptions {
   login: string
   password?: string
   img?: File
+  isAuth?: boolean
 }
 
 export interface IMobileConfirmation {

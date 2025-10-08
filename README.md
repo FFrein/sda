@@ -7,19 +7,19 @@ Steam desctop auth
 ### Frontend
 
 [tanstack router](https://tanstack.com/router/latest/docs/framework/react/quick-start)
-[redux]()
-[mui]()
-[react-toastify]()
-[react-hook-forms]()
-[yup]()
+[Zustand](https://zustand-demo.pmnd.rs/)
+[mui](https://mui.com/)
+[react-toastify](https://www.npmjs.com/package/react-toastify)
+[react-hook-forms](https://react-hook-form.com/)
+[yup](https://www.npmjs.com/package/yup)
 
 ### Backend
 
-[steam-user]()
-[steam-totp]()
-[steamcommunity]()
-[steam-tradeoffer-manager]()
-[electron-store]()
+[steam-user](https://github.com/DoctorMcKay/node-steam-session)
+[steam-totp](https://github.com/DoctorMcKay/node-steam-totp)
+[steamcommunity](https://github.com/DoctorMcKay/node-steamcommunity)
+[steam-tradeoffer-manager](https://github.com/DoctorMcKay/node-steam-tradeoffer-manager)
+[electron-store](https://www.npmjs.com/package/electron-store/v/5.2.0)
 
 ## Architecture
 
@@ -29,6 +29,12 @@ Steam desctop auth
 
 - (Важно) настроить electronUpdater
 - (Важно) автоматическая авторизация аккаунтов, при выборе определённого аккаунта приоритет его авторизации выше
+  Сейчас делаю это
+  Добавляю стор на фронте
+  Потом логику авторизации на бэке
+  Потом отправка уведа о успешном или нет auth
+  Изменение стора на фронте в зависимости от результата
+
 - (Важно) Отображение на интерфейсе авторизован акк или нет (зелёный, красный, белый(если ожидает авторизации))
 - (Важно) настроить конфигурационный файл для обработки ошибок
 - (Важно) создание маФайла (подключение двухфакторки)

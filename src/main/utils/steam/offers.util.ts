@@ -1,6 +1,6 @@
 import { IactOnConfirmationParam, IMobileConfirmation, ITradeOffer } from '@main/models/api'
 import { maFiles, users } from '@main/store/store'
-import { sendNotify } from '../notify.util'
+import Notification from '../notify.util'
 import TradeOfferManager from 'steam-tradeoffer-manager'
 import SteamTotp from 'steam-totp'
 
@@ -9,8 +9,6 @@ export const getTradeOffers = async (login: string): Promise<ITradeOffer[]> => {
   try {
     if (!users[login]?.manager) throw new Error('user dont have manager')
     const { manager } = users[login]
-
-    console.log('getTradeOffers', login)
 
     return new Promise((resolve, reject) => {
       manager.getOffers(TradeOfferManager.EOfferFilter.ActiveOnly, (err, body) => {
@@ -22,7 +20,7 @@ export const getTradeOffers = async (login: string): Promise<ITradeOffer[]> => {
       })
     })
   } catch (e) {
-    sendNotify(`${e}`)
+    Notification.error(`Аккаунт ${login}`, `${e}`)
     return []
   }
 }
@@ -66,7 +64,7 @@ export const getMobileConfirmations = async (login: string): Promise<IMobileConf
       })
     })
   } catch (e) {
-    sendNotify(`${e}`)
+    Notification.error(`Аккаунт ${login}`, `${e}`)
     return [] as IMobileConfirmation[]
   }
 }
@@ -88,7 +86,7 @@ export const actOnConfirmation = async (data: IactOnConfirmationParam): Promise<
       community.getConfirmations(time, confKey, (err, confirmations) => {
         if (err) return reject(err)
 
-        const confirmation = confirmations.find((c: any) => c.id === confirmationId)
+        const confirmation = confirmations.find((c) => c.id === confirmationId)
         if (!confirmation) return reject(new Error('confirmation not found'))
 
         const allowKey = SteamTotp.getConfirmationKey(maFile.identity_secret, time, 'allow')
@@ -107,7 +105,7 @@ export const actOnConfirmation = async (data: IactOnConfirmationParam): Promise<
       })
     })
   } catch (e) {
-    sendNotify(`${e}`)
+    Notification.error('actOnConfirmation', `${e}`)
     return false
   }
 }

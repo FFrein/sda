@@ -1,6 +1,7 @@
 import { AccountOptionRecords } from '@main/models/api'
 import { IMaFileRecord, UserRecords } from '@main/models/server'
 import * as AccountOptions from '@main/utils/steam/accountOptions.util'
+import { authQueue } from '@main/utils/steam/steam.util'
 import StorePkg from 'electron-store'
 const Store = StorePkg.default
 
@@ -17,6 +18,11 @@ export const accountsOptions = new Proxy(_accountsOptions, {
     if (typeof val == 'object') {
       target[prop] = val
       AccountOptions.save()
+
+      const { login, password } = val
+      if (!!login && !!password && !users[login] && !users[login]?.client) {
+        authQueue.push(login)
+      }
 
       return true
     } else {
