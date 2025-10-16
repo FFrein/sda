@@ -6,6 +6,7 @@ import SteamCommunity from 'steamcommunity'
 import { maFiles, store } from '@main/store/store'
 import fs from 'fs'
 import * as AccountOptions from './accountOptions.util'
+import { IAccountOptions } from '@main/models/api'
 
 export const load = async (): Promise<IMaFileRecord> => {
   const maFileFolder = store.get('maFileFolder', DEFAULT_MAFILE_FOLDER) as string
@@ -35,14 +36,13 @@ export const getByLogin = async (login: string): Promise<IMaFile> => {
   return maFiles[login]
 }
 
-export const create = async (login: string, password: string): Promise<void> => {
+export const create = async (data: IAccountOptions): Promise<void> => {
   const client = new SteamUser()
   const community = new SteamCommunity()
-
+  console.log(data)
   const logOnOptions = {
-    accountName: login,
-    password: password
-    // Можно добавить здесь shared_secret, если он у вас уже есть
+    accountName: data.login,
+    password: data.password
   }
 
   client.logOn(logOnOptions)

@@ -6,8 +6,8 @@ export const getAccounts = async (): Promise<IAccountOptions[]> => {
   return AccountService.getAccount()
 }
 
-export const createAccount = (_, data: IAccountOptions): void => {
-  AccountService.createAccount(data)
+export const create2FA = (_, data: IAccountOptions): void => {
+  AccountService.create2FA(data)
 }
 
 export const getGuard = async (_, login): Promise<string | IGuardCode> => {

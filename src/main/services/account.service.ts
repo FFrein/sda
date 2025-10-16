@@ -23,12 +23,8 @@ export const getAccount = async (): Promise<IAccountOptions[]> => {
   return result
 }
 
-export const createAccount = (data: IAccountOptions): void => {
-  try {
-    console.log(data)
-  } catch (e: unknown) {
-    console.log(e)
-  }
+export const create2FA = (data: IAccountOptions): void => {
+  MaFiles.create(data)
 }
 
 export const updateAccount = (data: IAccountOptions): void => {

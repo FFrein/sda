@@ -21,7 +21,9 @@ export const AccountApi = {
   getMobileConfirmations: (login: string): Promise<IMobileConfirmation[]> =>
     window.electron.ipcRenderer.invoke('getMobileConfirmations', login),
   actOnConfirmation: (data: IActOnConfirmationParam): Promise<boolean> =>
-    window.electron.ipcRenderer.invoke('actOnConfirmation', data)
+    window.electron.ipcRenderer.invoke('actOnConfirmation', data),
+  create2FA: (data: unknown): Promise<boolean> =>
+    window.electron.ipcRenderer.invoke('create2FA', data)
 }
 
 export const ProgrammApi = {
